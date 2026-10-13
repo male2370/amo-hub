@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AMO · Restaurante y Vinoteca</title>
+  <meta name="description" content="AMO, en el Club Portugués de Caballito. Reservas, menú, vinoteca y eventos.">
+  <meta name="theme-color" content="#14202E">
+
+  <meta property="og:title" content="AMO · Restaurante y Vinoteca">
+  <meta property="og:description" content="Reservas, menú, vinoteca y eventos.">
+  <meta property="og:image" content="img/hero.jpg">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" type="image/png" href="img/icono-copa.png">
+  <link rel="preload" as="image" href="img/hero.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============ INICIO ============ -->
+  <main id="vista-inicio" class="vista">
+    <section class="hero">
+      <div class="hero__fondo" aria-hidden="true"></div>
+      <div class="hero__velo" aria-hidden="true"></div>
+
+      <div class="hero__inner">
+        <header class="hero__marca">
+          <img class="hero__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
+          <p class="hero__lugar" data-lugar></p>
+        </header>
+
+        <figure class="hero__figura">
+          <img src="img/hero.jpg" alt="El anfitrión de AMO en el salón" width="1080" height="1559">
+        </figure>
+
+        <nav class="botonera" aria-label="Secciones">
+          <a class="boton boton--oro" href="#/reservar">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15l2 2 4-4"/></svg>
+            <span>Reservá tu mesa</span>
+          </a>
+          <a class="boton" href="#/menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3v8a2 2 0 0 0 2 2v8M9 3v8a2 2 0 0 1-2 2M7 3v6M17 21V3c-2 1-3 3.5-3 7v3h3"/></svg>
+            <span>Menú</span>
+          </a>
+          <a class="boton" data-vinoteca target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2h10l-.5 6a4.5 4.5 0 0 1-9 0L7 2ZM12 12.5V21M8 21h8"/></svg>
+            <span>Vinoteca</span>
+          </a>
+          <a class="boton" href="#/eventos">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3.5l2.4 5 5.4.6-4 3.7 1.1 5.4L12 15.5l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6L12 3.5Z"/></svg>
+            <span>Próximos eventos</span>
+          </a>
+        </nav>
+
+        <div class="hero__extra">
+          <a class="hero__consulta" data-whatsapp target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2a9.7 9.7 0 0 0-8.4 14.6L2.3 21.7l5-1.3A9.7 9.7 0 1 0 12 2.2Zm0 17.7c-1.5 0-2.9-.4-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 19.9Zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3 1 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.2-.3Z"/></svg>
+            ¿Consultas? <span>Escribinos por WhatsApp</span>
+          </a>
+          <a class="hero__seguir" href="#mas" aria-label="Ver más"><span></span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="historia" id="mas">
+      <figure class="historia__foto">
+        <img src="img/sirviendo.jpg" alt="Sirviendo una copa de vino tinto en el salón de AMO" loading="lazy" width="1032" height="1600">
+      </figure>
+      <div class="historia__texto">
+        <img class="historia__copa" src="img/icono-copa.png" alt="" width="113" height="208">
+        <h2>Cada botella,<br><em>con su historia.</em></h2>
+        <p>Elegimos los vinos con criterio y te contamos qué estás por tomar. Vos elegís la copa, del resto nos ocupamos nosotros.</p>
+        <div class="horarios">
+          <h3>Cuándo abrimos</h3>
+          <ul data-horarios></ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="pie">
+      <img src="img/logo-vinoteca.png" alt="AMO La Vinoteca" width="682" height="221" loading="lazy">
+      <p data-lugar></p>
+      <a data-instagram target="_blank" rel="noopener">Instagram</a>
+    </footer>
+  </main>
+
+  <!-- ============ RESERVAR ============ -->
+  <main id="vista-reservar" class="vista pagina" hidden>
+    <header class="pagina__cabecera">
+      <a class="volver" href="#/" aria-label="Volver al inicio">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <img class="pagina__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
+    </header>
+    <h1 class="pagina__titulo">Reservá tu mesa</h1>
+    <p class="pagina__bajada">Elegí el día, el horario y cuántos son.</p>
+
+    <section class="paso">
+      <h2 class="paso__titulo"><span>1</span>Día</h2>
+      <div class="dias" data-dias></div>
+    </section>
+
+    <section class="paso paso--bloqueado" data-paso-hora>
+      <h2 class="paso__titulo"><span>2</span>Horario</h2>
+      <div class="horas" data-horas></div>
+    </section>
+
+    <section class="paso paso--bloqueado" data-paso-personas>
+      <h2 class="paso__titulo"><span>3</span>Personas</h2>
+      <div class="personas" data-personas></div>
+      <div class="personas-otro" data-personas-otro hidden>
+        <label for="personas-cant">¿Cuántos son?</label>
+        <div class="personas-otro__campo">
+          <input id="personas-cant" type="number" inputmode="numeric" min="9" max="200" placeholder="Ej: 12" data-personas-input>
+          <span>personas</span>
+        </div>
+        <p class="personas-otro__nota" data-personas-nota></p>
+      </div>
+    </section>
+
+    <div class="resumen" data-resumen hidden>
+      <p class="resumen__texto" data-resumen-texto></p>
+      <a class="boton boton--oro" data-confirmar target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2a9.7 9.7 0 0 0-8.4 14.6L2.3 21.7l5-1.3A9.7 9.7 0 1 0 12 2.2Zm0 17.7c-1.5 0-2.9-.4-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 19.9Zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3 1 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.2-.3Z"/></svg>
+        <span>Confirmar por WhatsApp</span>
+      </a>
+      <p class="resumen__nota">Te respondemos por WhatsApp para confirmar.</p>
+    </div>
+  </main>
+
+  <!-- ============ MENU ============ -->
+  <main id="vista-menu" class="vista pagina" hidden>
+    <header class="pagina__cabecera">
+      <a class="volver" href="#/" aria-label="Volver al inicio">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <img class="pagina__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
+    </header>
+    <h1 class="pagina__titulo">Menú</h1>
+    <p class="pagina__bajada">Tocá cada plato para verlo.</p>
+    <div class="menu" data-menu></div>
+  </main>
+
+  <!-- ============ PLATO ============ -->
+  <main id="vista-plato" class="vista pagina pagina--plato" hidden>
+    <header class="pagina__cabecera">
+      <a class="volver" href="#/menu" aria-label="Volver al menú">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <img class="pagina__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
+    </header>
+    <article class="plato" data-plato></article>
+  </main>
+
+  <!-- ============ EVENTOS ============ -->
+  <main id="vista-eventos" class="vista pagina" hidden>
+    <header class="pagina__cabecera">
+      <a class="volver" href="#/" aria-label="Volver al inicio">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <img class="pagina__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
+    </header>
+    <h1 class="pagina__titulo">Próximos eventos</h1>
+    <p class="pagina__bajada">Catas, música en vivo y noches especiales.</p>
+    <ol class="eventos" data-eventos></ol>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
