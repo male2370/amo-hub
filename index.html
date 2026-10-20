@@ -89,47 +89,98 @@
   </main>
 
   <!-- ============ RESERVAR ============ -->
-  <main id="vista-reservar" class="vista pagina" hidden>
+  <main id="vista-reservar" class="vista pagina pagina--reserva" hidden>
     <header class="pagina__cabecera">
       <a class="volver" href="#/" aria-label="Volver al inicio">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg>
       </a>
       <img class="pagina__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
     </header>
-    <h1 class="pagina__titulo">Reservá tu mesa</h1>
-    <p class="pagina__bajada">Elegí el día, el horario y cuántos son.</p>
+    <form class="reserva" data-form-reserva novalidate>
+      <h1 class="pagina__titulo">Reservá tu mesa</h1>
+      <p class="pagina__bajada">Elegí tu lugar en el salón. Queda confirmada al instante.</p>
 
-    <section class="paso">
-      <h2 class="paso__titulo"><span>1</span>Día</h2>
-      <div class="dias" data-dias></div>
-    </section>
+      <section class="paso">
+        <h2 class="paso__titulo"><span>1</span>Día</h2>
+        <div class="dias" data-dias></div>
+      </section>
 
-    <section class="paso paso--bloqueado" data-paso-hora>
-      <h2 class="paso__titulo"><span>2</span>Horario</h2>
-      <div class="horas" data-horas></div>
-    </section>
+      <section class="paso paso--bloqueado" data-paso-hora>
+        <h2 class="paso__titulo"><span>2</span>Horario</h2>
+        <div class="horas" data-horas></div>
+      </section>
 
-    <section class="paso paso--bloqueado" data-paso-personas>
-      <h2 class="paso__titulo"><span>3</span>Personas</h2>
-      <div class="personas" data-personas></div>
-      <div class="personas-otro" data-personas-otro hidden>
-        <label for="personas-cant">¿Cuántos son?</label>
-        <div class="personas-otro__campo">
-          <input id="personas-cant" type="number" inputmode="numeric" min="9" max="200" placeholder="Ej: 12" data-personas-input>
-          <span>personas</span>
+      <section class="paso paso--bloqueado" data-paso-personas>
+        <h2 class="paso__titulo"><span>3</span>Personas</h2>
+        <div class="personas" data-personas></div>
+        <div class="personas-otro" data-personas-otro hidden>
+          <label for="personas-cant">¿Cuántos son?</label>
+          <div class="campo__caja">
+            <input id="personas-cant" type="number" inputmode="numeric" min="9" max="200" placeholder="Ej: 12" data-personas-input>
+            <span>personas</span>
+          </div>
+          <p class="campo__nota" data-personas-nota></p>
         </div>
-        <p class="personas-otro__nota" data-personas-nota></p>
+      </section>
+
+      <section class="paso paso--bloqueado" data-paso-mesa>
+        <h2 class="paso__titulo"><span>4</span>Tu mesa</h2>
+
+        <div data-mesa-plano>
+          <p class="paso__ayuda">Tocá la mesa que quieras. El número indica para cuántas personas es.</p>
+          <div class="plano" data-plano></div>
+          <ul class="plano__leyenda" aria-hidden="true">
+            <li><i class="ley ley--libre"></i>Disponible</li>
+            <li><i class="ley ley--elegida"></i>Tu mesa</li>
+            <li><i class="ley ley--no"></i>No disponible</li>
+          </ul>
+          <p class="plano__estado" data-plano-estado aria-live="polite"></p>
+        </div>
+
+        <div class="armada" data-mesa-armada hidden>
+          <img src="img/icono-copa.png" alt="" width="113" height="208">
+          <p class="armada__titulo">Nosotros te armamos la mesa</p>
+          <p class="armada__sub">+8 personas</p>
+          <p class="armada__texto">Para grupos grandes preparamos el espacio especialmente. Dejanos tus datos y la reserva queda tomada.</p>
+        </div>
+      </section>
+
+      <section class="paso paso--bloqueado" data-paso-datos>
+        <h2 class="paso__titulo"><span>5</span>Tus datos</h2>
+        <div class="campos">
+          <div class="campo">
+            <label for="r-nombre">Nombre y apellido</label>
+            <div class="campo__caja"><input id="r-nombre" name="nombre" autocomplete="name" maxlength="80" required></div>
+          </div>
+          <div class="campo">
+            <label for="r-telefono">Teléfono</label>
+            <div class="campo__caja"><input id="r-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="11 2345-6789" required></div>
+          </div>
+          <div class="campo">
+            <label for="r-email">Mail</label>
+            <div class="campo__caja"><input id="r-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="Te mandamos la confirmación" required></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="confirmar" data-confirmar-caja hidden>
+        <p class="confirmar__resumen" data-resumen-texto></p>
+        <button type="submit" class="boton boton--oro boton--ancho" data-confirmar>
+          <span data-confirmar-texto>Confirmar reserva</span>
+        </button>
+        <p class="confirmar__error" data-error aria-live="assertive"></p>
       </div>
+    </form>
+
+    <section class="exito" data-exito hidden>
+      <img src="img/icono-copa.png" alt="" width="113" height="208">
+      <h1 class="exito__titulo" data-exito-titulo></h1>
+      <p class="exito__texto" data-exito-texto></p>
+      <p class="exito__mail" data-exito-mail></p>
+      <a class="boton boton--linea" href="#/"><span>Volver al inicio</span></a>
     </section>
 
-    <div class="resumen" data-resumen hidden>
-      <p class="resumen__texto" data-resumen-texto></p>
-      <a class="boton boton--oro" data-confirmar target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2a9.7 9.7 0 0 0-8.4 14.6L2.3 21.7l5-1.3A9.7 9.7 0 1 0 12 2.2Zm0 17.7c-1.5 0-2.9-.4-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 19.9Zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3 1 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.2-.3Z"/></svg>
-        <span>Confirmar por WhatsApp</span>
-      </a>
-      <p class="resumen__nota">Te respondemos por WhatsApp para confirmar.</p>
-    </div>
+    <p class="reserva__ayuda">¿Un problema con tu reserva? <a data-whatsapp target="_blank" rel="noopener">Escribinos</a></p>
   </main>
 
   <!-- ============ MENU ============ -->
@@ -170,6 +221,7 @@
   </main>
 
   <script src="data.js"></script>
+  <script src="salon.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

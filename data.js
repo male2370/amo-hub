@@ -35,7 +35,10 @@ window.AMO = {
     reservas: {
       dias: [4, 5, 6],
       horarios: ["20:00", "22:00"],
-      semanasAdelante: 4
+      semanasAdelante: 4,
+      maxPersonas: 8,
+      // Link del Apps Script de Google. Si está vacío, funciona en "modo prueba".
+      api: "https://script.google.com/macros/s/AKfycbxVaVxRwDG5ot6_xIg_dFezsJc54kwuju4QbJitn3Wc5KfkAe4lMjGukjRDg_s8ErF46Q/exec"
     }
   },
 

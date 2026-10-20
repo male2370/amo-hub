@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AMO Reservas</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#14202E">
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Reservas">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+
+  <!-- ============ LOGIN ============ -->
+  <main class="login" data-login hidden>
+    <img class="login__copa" src="../img/icono-copa.png" alt="" width="113" height="208">
+    <img class="login__logo" src="../img/logo-amo.png" alt="AMO" width="546" height="155">
+    <p class="login__sub">Reservas</p>
+    <form class="login__form" data-login-form>
+      <label class="campo">
+        <span class="campo__label">Contraseña</span>
+        <input class="campo__input" type="password" autocomplete="current-password" required data-login-clave>
+      </label>
+      <button class="btn btn--oro btn--ancho" type="submit">Entrar</button>
+      <p class="error" data-login-error aria-live="assertive"></p>
+    </form>
+  </main>
+
+  <!-- ============ APP ============ -->
+  <div class="app" data-app hidden>
+
+    <header class="barra">
+      <div class="barra__marca">
+        <img src="../img/logo-amo.png" alt="AMO" width="546" height="155">
+        <span>Reservas</span>
+      </div>
+
+      <nav class="tabs" aria-label="Secciones">
+        <button class="tab" data-tab="noche" aria-current="page">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+          <span>Noche</span>
+        </button>
+        <button class="tab" data-tab="proximos">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+          <span>Próximos</span>
+        </button>
+        <button class="tab" data-tab="ajustes">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+          <span>Ajustes</span>
+        </button>
+      </nav>
+
+      <div class="barra__acciones">
+        <button class="icono-btn icono-btn--nuevas" data-nuevas-btn aria-label="Reservas nuevas" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16ZM10 20a2 2 0 0 0 4 0"/></svg>
+          <b data-nuevas-num>0</b>
+        </button>
+        <button class="icono-btn" data-actualizar aria-label="Actualizar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <p class="estado-red" data-estado-red hidden></p>
+
+    <!-- ===== NOCHE ===== -->
+    <section class="vista" data-vista="noche">
+      <div class="fecha-nav">
+        <button class="icono-btn" data-dia-mover="-1" aria-label="Día anterior">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="fecha-nav__centro" data-fecha-elegir>
+          <small data-fecha-etiqueta>Hoy</small>
+          <strong data-fecha-texto></strong>
+        </button>
+        <button class="icono-btn" data-dia-mover="1" aria-label="Día siguiente">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <input type="date" class="fecha-nav__input" data-fecha-input tabindex="-1" aria-hidden="true">
+      </div>
+
+      <div class="cerrado" data-cerrado hidden>
+        <p><strong>Noche cerrada</strong> <span data-cerrado-motivo></span></p>
+        <button class="btn btn--chico" data-reabrir>Reabrir</button>
+      </div>
+
+      <div class="numeros" data-numeros></div>
+
+      <div class="noche">
+        <div class="noche__plano">
+          <div class="plano" data-plano></div>
+          <ul class="leyenda" aria-hidden="true">
+            <li><i class="ley ley--libre"></i>Libre</li>
+            <li><i class="ley ley--reservada"></i>Reservada</li>
+            <li><i class="ley ley--llego"></i>Llegó</li>
+            <li><i class="ley ley--novino"></i>No vino</li>
+            <li><i class="ley ley--bloq"></i>Bloqueada</li>
+          </ul>
+        </div>
+        <div class="noche__lista" data-lista></div>
+      </div>
+    </section>
+
+    <!-- ===== PRÓXIMOS ===== -->
+    <section class="vista" data-vista="proximos" hidden>
+      <h1 class="titulo">Próximas noches</h1>
+      <div class="dias-lista" data-dias></div>
+    </section>
+
+    <!-- ===== AJUSTES ===== -->
+    <section class="vista vista--angosta" data-vista="ajustes" hidden>
+      <h1 class="titulo">Ajustes</h1>
+
+      <div class="tarjeta">
+        <h2>Cerrar una noche</h2>
+        <p class="tarjeta__texto">Ese día nadie va a poder reservar desde la web.</p>
+        <form class="form-fila" data-cerrar-form>
+          <label class="campo">
+            <span class="campo__label">Fecha</span>
+            <input class="campo__input" type="date" required data-cerrar-fecha>
+          </label>
+          <label class="campo">
+            <span class="campo__label">Motivo (opcional)</span>
+            <input class="campo__input" maxlength="120" placeholder="Evento privado" data-cerrar-motivo>
+          </label>
+          <button class="btn btn--oro" type="submit">Cerrar noche</button>
+        </form>
+        <ul class="cerradas" data-cerradas></ul>
+      </div>
+
+      <div class="tarjeta">
+        <h2>Instalar en el celular</h2>
+        <p class="tarjeta__texto"><strong>iPhone:</strong> abrí esta página en Safari → botón Compartir → <em>Agregar a inicio</em>.</p>
+        <p class="tarjeta__texto"><strong>Android:</strong> abrí en Chrome → menú ⋮ → <em>Instalar app</em> o <em>Agregar a la pantalla principal</em>.</p>
+        <button class="btn btn--oro" data-instalar hidden>Instalar ahora</button>
+      </div>
+
+      <div class="tarjeta">
+        <h2>Avisos</h2>
+        <p class="tarjeta__texto">Cada reserva nueva aparece acá con la campanita. Además sigue llegando un mail a amorestaurante73@gmail.com como respaldo.</p>
+      </div>
+
+      <button class="btn btn--linea btn--ancho" data-salir>Cerrar sesión</button>
+    </section>
+
+    <button class="fab" data-nueva aria-label="Cargar reserva">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Reserva</span>
+    </button>
+  </div>
+
+  <!-- ============ HOJA (detalle / nueva / nuevas) ============ -->
+  <div class="hoja" data-hoja hidden>
+    <div class="hoja__fondo" data-hoja-cerrar></div>
+    <div class="hoja__caja" role="dialog" aria-modal="true" aria-labelledby="hoja-titulo">
+      <button class="icono-btn hoja__x" data-hoja-cerrar aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div data-hoja-contenido></div>
+    </div>
+  </div>
+
+  <div class="aviso" data-aviso role="status" aria-live="polite" hidden></div>
+
+  <script src="../data.js"></script>
+  <script src="../salon.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>
