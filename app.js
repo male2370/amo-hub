@@ -842,6 +842,39 @@
     setTimeout(() => { b.textContent = "Copiar"; b.classList.remove("is-ok"); }, 1600);
   });
 
+  /* ---------- Instalar en el celular ---------- */
+  const enApp = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const esCelu = esIOS || /android/i.test(navigator.userAgent);
+  const btnInstalar = $("[data-instalar]");
+  const hojaInstalar = $("[data-instalar-hoja]");
+  let pedidoInstalar = null;
+
+  if (!enApp && esCelu) btnInstalar.hidden = false;
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); pedidoInstalar = e; if (!enApp) btnInstalar.hidden = false; });
+  window.addEventListener("appinstalled", () => { pedidoInstalar = null; btnInstalar.hidden = true; });
+
+  btnInstalar.addEventListener("click", async () => {
+    if (pedidoInstalar) {
+      pedidoInstalar.prompt();
+      const r = await pedidoInstalar.userChoice;
+      pedidoInstalar = null;
+      if (r.outcome === "accepted") btnInstalar.hidden = true;
+      return;
+    }
+    const pasos = esIOS
+      ? ["Abrí esta página en <b>Safari</b>.", "Tocá el botón <b>Compartir</b> (el cuadradito con la flecha para arriba).", "Elegí <b>Agregar a inicio</b> y tocá <b>Agregar</b>."]
+      : ["Tocá el menú <b>⋮</b> de Chrome.", "Elegí <b>Agregar a la pantalla principal</b> o <b>Instalar app</b>.", "Confirmá con <b>Instalar</b> o <b>Agregar</b>."];
+    $("[data-instalar-pasos]").innerHTML = pasos.map((p) => `<li><span>${p}</span></li>`).join("");
+    hojaInstalar.hidden = false;
+  });
+  hojaInstalar.addEventListener("click", (ev) => { if (ev.target.closest("[data-instalar-cerrar]")) hojaInstalar.hidden = true; });
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") hojaInstalar.hidden = true; });
+
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+
   /* ---------- Navegación ---------- */
   const vistas = {
     inicio: $("#vista-inicio"), reservar: $("#vista-reservar"), cata: $("#vista-cata"), pago: $("#vista-pago"),

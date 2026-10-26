@@ -1031,13 +1031,33 @@
   });
 
   // Instalar como app
+  const enApp = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const banda = $("[data-instalar-banda]");
   let promptInstalar = null;
-  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); promptInstalar = e; $("[data-instalar]").hidden = false; });
-  $("[data-instalar]").addEventListener("click", async () => {
-    if (!promptInstalar) return;
-    promptInstalar.prompt(); await promptInstalar.userChoice;
-    promptInstalar = null; $("[data-instalar]").hidden = true;
-  });
+  banda.hidden = enApp || guardado.leer("amo-instalar-oculto") === "1";
+  $("[data-instalar]").hidden = enApp;
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); promptInstalar = e; });
+  window.addEventListener("appinstalled", () => { promptInstalar = null; banda.hidden = true; $("[data-instalar]").hidden = true; });
+  async function instalar() {
+    if (promptInstalar) {
+      promptInstalar.prompt();
+      const r = await promptInstalar.userChoice;
+      promptInstalar = null;
+      if (r.outcome === "accepted") { banda.hidden = true; $("[data-instalar]").hidden = true; }
+      return;
+    }
+    const pasos = esIOS
+      ? ["Abrí esta página en <b>Safari</b>.", "Tocá el botón <b>Compartir</b> (el cuadradito con la flecha para arriba).", "Elegí <b>Agregar a inicio</b> y tocá <b>Agregar</b>."]
+      : ["Tocá el menú <b>⋮</b> de Chrome.", "Elegí <b>Instalar app</b> o <b>Agregar a la pantalla principal</b>.", "Confirmá con <b>Instalar</b>."];
+    abrirHoja(`
+      <h2 class="det__titulo" id="hoja-titulo">Instalar en el celular</h2>
+      <ol class="pasos-instalar">${pasos.map((p) => `<li><span>${p}</span></li>`).join("")}</ol>
+      <button class="btn btn--oro btn--ancho" data-hoja-cerrar>Entendido</button>`);
+  }
+  $("[data-instalar]").addEventListener("click", instalar);
+  $("[data-instalar-banda-btn]").addEventListener("click", instalar);
+  $("[data-instalar-banda-x]").addEventListener("click", () => { guardado.escribir("amo-instalar-oculto", "1"); banda.hidden = true; });
   if ("serviceWorker" in navigator && location.protocol === "https:") {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   }
