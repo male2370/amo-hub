@@ -23,6 +23,14 @@
   $("[data-horarios]").innerHTML = D.config.horarios.map((h) => `<li>${esc(h)}</li>`).join("");
 
   /* ---------- Menú ---------- */
+  // La foto de cada plato es img/platos/<id>.jpg. Si no existe, se ve la copa.
+  const fotoDe = (p) => p.foto || `img/platos/${p.id}.jpg`;
+  window.amoSinFoto = (img, grande) => {
+    const caja = document.createElement(grande ? "div" : "span");
+    caja.className = grande ? "plato__foto plato__foto--vacia" : "plato-btn__mini plato-btn__mini--vacio";
+    caja.innerHTML = '<img src="img/icono-copa.png" alt="">';
+    img.replaceWith(caja);
+  };
   const platos = {};
   D.menu.forEach((cat) => cat.platos.forEach((p) => (platos[p.id] = { ...p, categoria: cat.categoria })));
 
@@ -33,9 +41,7 @@
         ${cat.platos.map((p) => `
           <li>
             <a class="plato-btn" href="#/menu/${encodeURIComponent(p.id)}">
-              ${p.foto
-                ? `<img class="plato-btn__mini" src="${esc(p.foto)}" alt="" loading="lazy">`
-                : `<span class="plato-btn__mini plato-btn__mini--vacio"><img src="img/icono-copa.png" alt=""></span>`}
+              <img class="plato-btn__mini" src="${esc(fotoDe(p))}" alt="" loading="lazy" onerror="amoSinFoto(this)">
               <span class="plato-btn__nombre">${esc(p.nombre)}</span>
               ${p.precio ? `<span class="plato-btn__precio">${esc(p.precio)}</span>` : ""}
               ${flecha}
@@ -48,9 +54,7 @@
     const p = platos[id];
     if (!p) { location.hash = "#/menu"; return; }
     $("[data-plato]").innerHTML = `
-      ${p.foto
-        ? `<img class="plato__foto" src="${esc(p.foto)}" alt="${esc(p.nombre)}">`
-        : `<div class="plato__foto plato__foto--vacia"><img src="img/icono-copa.png" alt=""></div>`}
+      <img class="plato__foto" src="${esc(fotoDe(p))}" alt="${esc(p.nombre)}" onerror="amoSinFoto(this, true)">
       <p class="plato__categoria">${esc(p.categoria)}</p>
       <h1>${esc(p.nombre)}</h1>
       ${p.precio ? `<p class="plato__precio">${esc(p.precio)}</p>` : ""}
