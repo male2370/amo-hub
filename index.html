@@ -42,6 +42,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15l2 2 4-4"/></svg>
             <span>Reservá tu mesa</span>
           </a>
+          <a class="boton" href="#/cata">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.5 3h6l-.4 4.6a2.6 2.6 0 0 1-5.2 0L3.5 3ZM6.5 10.2V19M4 19h5M14.5 3h6l-.4 4.6a2.6 2.6 0 0 1-5.2 0L14.5 3ZM17.5 10.2V19M15 19h5"/></svg>
+            <span>Catas de los miércoles</span>
+          </a>
           <a class="boton" href="#/menu">
             <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3v8a2 2 0 0 0 2 2v8M9 3v8a2 2 0 0 1-2 2M7 3v6M17 21V3c-2 1-3 3.5-3 7v3h3"/></svg>
             <span>Menú</span>
@@ -96,6 +100,10 @@
       </a>
       <img class="pagina__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
     </header>
+    <nav class="selector" aria-label="Tipo de reserva">
+      <a href="#/reservar" aria-current="page">Mesa</a>
+      <a href="#/cata">Cata de vinos</a>
+    </nav>
     <form class="reserva" data-form-reserva novalidate>
       <h1 class="pagina__titulo">Reservá tu mesa</h1>
       <p class="pagina__bajada">Elegí tu lugar en el salón. Queda confirmada al instante.</p>
@@ -107,7 +115,7 @@
 
       <section class="paso paso--bloqueado" data-paso-hora>
         <h2 class="paso__titulo"><span>2</span>Horario</h2>
-        <div class="horas" data-horas></div>
+        <div class="turnos" data-horas></div>
       </section>
 
       <section class="paso paso--bloqueado" data-paso-personas>
@@ -183,6 +191,103 @@
     <p class="reserva__ayuda">¿Un problema con tu reserva? <a data-whatsapp target="_blank" rel="noopener">Escribinos</a></p>
   </main>
 
+  <!-- ============ CATA ============ -->
+  <main id="vista-cata" class="vista pagina pagina--reserva" hidden>
+    <header class="pagina__cabecera">
+      <a class="volver" href="#/" aria-label="Volver al inicio">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <img class="pagina__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
+    </header>
+    <nav class="selector" aria-label="Tipo de reserva">
+      <a href="#/reservar">Mesa</a>
+      <a href="#/cata" aria-current="page">Cata de vinos</a>
+    </nav>
+    <form class="reserva" data-form-cata novalidate>
+      <h1 class="pagina__titulo">Cata de vinos</h1>
+      <p class="pagina__bajada">Todos los miércoles a las <span data-cata-hora>20:30</span> h, con una bodega distinta cada semana.</p>
+
+      <div class="cata-info">
+        <p class="cata-info__precio"><b data-cata-precio></b><span>por persona</span></p>
+        <ul>
+          <li data-cata-incluye></li>
+          <li>Si hay restricciones alimentarias, avisanos al reservar.</li>
+          <li>Se reserva con una seña del <span data-cata-porc>50</span>% por transferencia. La seña no es reembolsable.</li>
+        </ul>
+      </div>
+
+      <section class="paso">
+        <h2 class="paso__titulo"><span>1</span>Fecha</h2>
+        <div class="catas" data-catas></div>
+        <p class="plano__estado" data-catas-estado aria-live="polite"></p>
+      </section>
+
+      <section class="paso paso--bloqueado" data-cata-paso-personas>
+        <h2 class="paso__titulo"><span>2</span>Personas</h2>
+        <div class="contador">
+          <button type="button" class="contador__btn" data-cant="-1" aria-label="Una persona menos">−</button>
+          <output class="contador__num" data-cant-num aria-live="polite">2</output>
+          <button type="button" class="contador__btn" data-cant="1" aria-label="Una persona más">+</button>
+        </div>
+        <p class="cata-total" data-cata-total></p>
+        <p class="campo__nota" data-cant-nota></p>
+      </section>
+
+      <section class="paso paso--bloqueado" data-cata-paso-restr>
+        <h2 class="paso__titulo"><span>3</span>Restricciones alimentarias</h2>
+        <p class="paso__ayuda">¿Alguien del grupo es celíaco, vegetariano, vegano o tiene alguna alergia?</p>
+        <div class="horas" data-restr>
+          <button type="button" class="hora" data-restr-op="no" aria-pressed="false">No</button>
+          <button type="button" class="hora" data-restr-op="si" aria-pressed="false">Sí</button>
+        </div>
+        <div class="campo restr-caja" data-restr-caja hidden>
+          <label for="c-restr">Contanos cuáles y para cuántas personas</label>
+          <div class="campo__caja"><textarea id="c-restr" maxlength="300" rows="3" placeholder="Ej: 1 celíaco y 1 vegetariano"></textarea></div>
+        </div>
+      </section>
+
+      <section class="paso paso--bloqueado" data-cata-paso-datos>
+        <h2 class="paso__titulo"><span>4</span>Tus datos</h2>
+        <div class="campos">
+          <div class="campo">
+            <label for="c-nombre">Nombre y apellido</label>
+            <div class="campo__caja"><input id="c-nombre" autocomplete="name" maxlength="80" required></div>
+          </div>
+          <div class="campo">
+            <label for="c-telefono">Teléfono</label>
+            <div class="campo__caja"><input id="c-telefono" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="11 2345-6789" required></div>
+          </div>
+          <div class="campo">
+            <label for="c-email">Mail</label>
+            <div class="campo__caja"><input id="c-email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="Te mandamos los datos para la seña" required></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="confirmar" data-cata-confirmar hidden>
+        <p class="confirmar__resumen" data-cata-resumen></p>
+        <p class="confirmar__sena" data-cata-sena></p>
+        <button type="submit" class="boton boton--oro boton--ancho" data-cata-boton>
+          <span data-cata-boton-texto>Reservar y pagar la seña</span>
+        </button>
+        <p class="confirmar__error" data-cata-error aria-live="assertive"></p>
+      </div>
+    </form>
+    <p class="reserva__ayuda">¿Son más de 20 o tenés una consulta? <a data-whatsapp target="_blank" rel="noopener">Escribinos</a></p>
+  </main>
+
+  <!-- ============ PAGO DE SEÑA ============ -->
+  <main id="vista-pago" class="vista pagina pagina--reserva" hidden>
+    <header class="pagina__cabecera">
+      <a class="volver" href="#/" aria-label="Volver al inicio">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <img class="pagina__logo" src="img/logo-amo.png" alt="AMO" width="546" height="155">
+    </header>
+    <div class="pago" data-pago></div>
+    <p class="reserva__ayuda">¿Problemas con el pago? <a data-pago-wa target="_blank" rel="noopener">Escribinos</a></p>
+  </main>
+
   <!-- ============ MENU ============ -->
   <main id="vista-menu" class="vista pagina" hidden>
     <header class="pagina__cabecera">
@@ -224,4 +329,4 @@
   <script src="salon.js"></script>
   <script src="app.js"></script>
 </body>
-</html>
+</html> 

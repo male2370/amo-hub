@@ -48,12 +48,17 @@
 
       <nav class="tabs" aria-label="Secciones">
         <button class="tab" data-tab="noche" aria-current="page">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
-          <span>Noche</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><rect x="7" y="7" width="4" height="3" rx=".5"/><rect x="13" y="7" width="4" height="3" rx=".5"/><rect x="7" y="14" width="10" height="3" rx=".5"/></svg>
+          <span>Salón</span>
         </button>
         <button class="tab" data-tab="proximos">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
           <span>Próximos</span>
+        </button>
+        <button class="tab" data-tab="catas">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 3h6l-.4 4.6a2.6 2.6 0 0 1-5.2 0L3.5 3ZM6.5 10.2V19M4 19h5M14.5 3h6l-.4 4.6a2.6 2.6 0 0 1-5.2 0L14.5 3ZM17.5 10.2V19M15 19h5"/></svg>
+          <span>Catas</span>
+          <b class="tab__badge" data-catas-badge hidden>0</b>
         </button>
         <button class="tab" data-tab="ajustes">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
@@ -90,8 +95,10 @@
         <input type="date" class="fecha-nav__input" data-fecha-input tabindex="-1" aria-hidden="true">
       </div>
 
+      <div class="turno-sel" data-turnos role="group" aria-label="Turno"></div>
+
       <div class="cerrado" data-cerrado hidden>
-        <p><strong>Noche cerrada</strong> <span data-cerrado-motivo></span></p>
+        <p><strong data-cerrado-titulo>Turno cerrado</strong> <span data-cerrado-motivo></span></p>
         <button class="btn btn--chico" data-reabrir>Reabrir</button>
       </div>
 
@@ -114,8 +121,13 @@
 
     <!-- ===== PRÓXIMOS ===== -->
     <section class="vista" data-vista="proximos" hidden>
-      <h1 class="titulo">Próximas noches</h1>
+      <h1 class="titulo">Próximos días</h1>
       <div class="dias-lista" data-dias></div>
+    </section>
+
+    <!-- ===== CATAS ===== -->
+    <section class="vista" data-vista="catas" hidden>
+      <div data-catas-vista></div>
     </section>
 
     <!-- ===== AJUSTES ===== -->
@@ -123,18 +135,26 @@
       <h1 class="titulo">Ajustes</h1>
 
       <div class="tarjeta">
-        <h2>Cerrar una noche</h2>
-        <p class="tarjeta__texto">Ese día nadie va a poder reservar desde la web.</p>
+        <h2>Cerrar un día o un turno</h2>
+        <p class="tarjeta__texto">Nadie va a poder reservar mesa desde la web en ese día o turno.</p>
         <form class="form-fila" data-cerrar-form>
           <label class="campo">
             <span class="campo__label">Fecha</span>
             <input class="campo__input" type="date" required data-cerrar-fecha>
           </label>
           <label class="campo">
+            <span class="campo__label">Qué cerrar</span>
+            <select class="campo__input" data-cerrar-turno>
+              <option value="">Todo el día</option>
+              <option value="mediodia">Solo el mediodía</option>
+              <option value="noche">Solo la noche</option>
+            </select>
+          </label>
+          <label class="campo">
             <span class="campo__label">Motivo (opcional)</span>
             <input class="campo__input" maxlength="120" placeholder="Evento privado" data-cerrar-motivo>
           </label>
-          <button class="btn btn--oro" type="submit">Cerrar noche</button>
+          <button class="btn btn--oro" type="submit">Cerrar</button>
         </form>
         <ul class="cerradas" data-cerradas></ul>
       </div>
@@ -148,7 +168,7 @@
 
       <div class="tarjeta">
         <h2>Avisos</h2>
-        <p class="tarjeta__texto">Cada reserva nueva aparece acá con la campanita. Además sigue llegando un mail a amorestaurante73@gmail.com como respaldo.</p>
+        <p class="tarjeta__texto">Cada reserva nueva (mesa o cata) aparece con la campanita, y cada comprobante de seña para revisar con el número dorado en Catas. Además sigue llegando un mail a amoresto.reservas@gmail.com como respaldo.</p>
       </div>
 
       <button class="btn btn--linea btn--ancho" data-salir>Cerrar sesión</button>
@@ -156,7 +176,7 @@
 
     <button class="fab" data-nueva aria-label="Cargar reserva">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-      <span>Reserva</span>
+      <span data-fab-texto>Reserva</span>
     </button>
   </div>
 

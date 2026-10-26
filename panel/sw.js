@@ -2,7 +2,7 @@
    Permite instalar la app y abrirla aunque la señal sea mala.
    Las reservas siempre se piden en vivo a Google (no se guardan acá). */
 
-const CACHE = "amo-reservas-v1";
+const CACHE = "amo-reservas-v2";
 const ARCHIVOS = [
   "./",
   "./index.html",

@@ -32,13 +32,25 @@ window.AMO = {
     // Reservas: qué días se puede reservar y en qué horarios.
     // Días: 0 = domingo, 1 = lunes, 2 = martes, 3 = miércoles,
     //       4 = jueves, 5 = viernes, 6 = sábado
+    // (si cambiás días u horarios, cambialos también en el Apps Script)
     reservas: {
-      dias: [4, 5, 6],
-      horarios: ["20:00", "22:00"],
+      turnos: [
+        { id: "mediodia", nombre: "Mediodía", dias: [6, 0], horarios: ["12:00", "13:00", "14:00"] },
+        { id: "noche", nombre: "Noche", dias: [4, 5, 6], horarios: ["20:00", "22:00"] }
+      ],
       semanasAdelante: 4,
       maxPersonas: 8,
-      // Link del Apps Script de Google. Si está vacío, funciona en "modo prueba".
+      // Link del Apps Script de Google (ver LEEME). Si está vacío, funciona en "modo prueba".
       api: "https://script.google.com/macros/s/AKfycbxVaVxRwDG5ot6_xIg_dFezsJc54kwuju4QbJitn3Wc5KfkAe4lMjGukjRDg_s8ErF46Q/exec"
+    },
+
+    // Catas de los miércoles
+    cata: {
+      hora: "20:30",
+      precio: 30000,      // por persona
+      senaPorc: 50,       // % de seña
+      incluye: "Vinos de la bodega invitada para degustar y tapeos alternativos.",
+      horasParaPagar: 2
     }
   },
 
@@ -292,13 +304,7 @@ window.AMO = {
      - link: opcional. Si lo dejas "", el boton abre WhatsApp para reservar.
   */
   eventos: [
-    {
-      fecha: "2026-10-14",
-      hora: "20:30",
-      titulo: "Miércoles de cata",
-      descripcion: "Evento de ejemplo: una bodega distinta cada semana. Reemplazalo por el real.",
-      link: ""
-    },
+    
     {
       fecha: "2026-10-16",
       hora: "21:00",
