@@ -22,45 +22,75 @@
   $$("[data-lugar]").forEach((el) => (el.textContent = D.config.lugar));
   $("[data-horarios]").innerHTML = D.config.horarios.map((h) => `<li>${esc(h)}</li>`).join("");
 
-  /* ---------- Menú ---------- */
-  // La foto de cada plato es img/platos/<id>.jpg. Si no existe, se ve la copa.
-  const fotoDe = (p) => p.foto || `img/platos/${p.id}.jpg`;
+  /* ---------- Menú ----------
+     Se lee del Google de la app del dueño (lo edita desde la pestaña Menú).
+     Mientras carga, o si todavía no lo editó nunca, se usa el de data.js. */
+  // Foto: la que subió el dueño, o img/platos/<id>.jpg. Si no existe, se ve la copa.
+  const fotoDe = (p) => (p.foto === "sin" ? "" : p.foto || `img/platos/${p.id}.jpg`);
   window.amoSinFoto = (img, grande) => {
     const caja = document.createElement(grande ? "div" : "span");
     caja.className = grande ? "plato__foto plato__foto--vacia" : "plato-btn__mini plato-btn__mini--vacio";
     caja.innerHTML = '<img src="img/icono-copa.png" alt="">';
     img.replaceWith(caja);
   };
-  const platos = {};
-  D.menu.forEach((cat) => cat.platos.forEach((p) => (platos[p.id] = { ...p, categoria: cat.categoria })));
+  const fotoChica = (p) => fotoDe(p)
+    ? `<img class="plato-btn__mini" src="${esc(fotoDe(p))}" alt="" loading="lazy" onerror="amoSinFoto(this)">`
+    : '<span class="plato-btn__mini plato-btn__mini--vacio"><img src="img/icono-copa.png" alt=""></span>';
+  const fotoGrande = (p) => fotoDe(p)
+    ? `<img class="plato__foto" src="${esc(fotoDe(p))}" alt="${esc(p.nombre)}" onerror="amoSinFoto(this, true)">`
+    : '<div class="plato__foto plato__foto--vacia"><img src="img/icono-copa.png" alt=""></div>';
 
-  $("[data-menu]").innerHTML = D.menu.map((cat) => `
-    <section class="menu__categoria">
-      <h2>${esc(cat.categoria)}</h2>
-      <ul>
-        ${cat.platos.map((p) => `
-          <li>
-            <a class="plato-btn" href="#/menu/${encodeURIComponent(p.id)}">
-              <img class="plato-btn__mini" src="${esc(fotoDe(p))}" alt="" loading="lazy" onerror="amoSinFoto(this)">
-              <span class="plato-btn__nombre">${esc(p.nombre)}</span>
-              ${p.precio ? `<span class="plato-btn__precio">${esc(p.precio)}</span>` : ""}
-              ${flecha}
-            </a>
-          </li>`).join("")}
-      </ul>
-    </section>`).join("");
+  let platos = {};
+
+  function pintarMenu(menu) {
+    const visibles = menu
+      .map((cat) => ({ ...cat, platos: cat.platos.filter((p) => !p.oculto) }))
+      .filter((cat) => cat.platos.length);
+    platos = {};
+    visibles.forEach((cat) => cat.platos.forEach((p) => (platos[p.id] = { ...p, categoria: cat.categoria })));
+    $("[data-menu]").innerHTML = visibles.map((cat) => `
+      <section class="menu__categoria">
+        <h2>${esc(cat.categoria)}</h2>
+        <ul>
+          ${cat.platos.map((p) => `
+            <li>
+              <a class="plato-btn" href="#/menu/${encodeURIComponent(p.id)}">
+                ${fotoChica(p)}
+                <span class="plato-btn__nombre">${esc(p.nombre)}</span>
+                ${p.precio ? `<span class="plato-btn__precio">${esc(p.precio)}</span>` : ""}
+                ${flecha}
+              </a>
+            </li>`).join("")}
+        </ul>
+      </section>`).join("");
+  }
 
   function pintarPlato(id) {
     const p = platos[id];
     if (!p) { location.hash = "#/menu"; return; }
     $("[data-plato]").innerHTML = `
-      <img class="plato__foto" src="${esc(fotoDe(p))}" alt="${esc(p.nombre)}" onerror="amoSinFoto(this, true)">
+      ${fotoGrande(p)}
       <p class="plato__categoria">${esc(p.categoria)}</p>
       <h1>${esc(p.nombre)}</h1>
       ${p.precio ? `<p class="plato__precio">${esc(p.precio)}</p>` : ""}
-      <p class="plato__desc">${esc(p.descripcion)}</p>
+      ${p.descripcion ? `<p class="plato__desc">${esc(p.descripcion)}</p>` : ""}
       <a class="boton boton--linea" href="#/menu"><span>Ver todo el menú</span></a>`;
     document.title = `${p.nombre} · AMO`;
+  }
+
+  // Primero el último menú guardado en este celu (o el de data.js), después el actualizado
+  let menuGuardado = null;
+  try { menuGuardado = JSON.parse(localStorage.getItem("amo-menu") || "null"); } catch (e) {}
+  pintarMenu(Array.isArray(menuGuardado) ? menuGuardado : D.menu);
+  const apiMenu = (D.config.reservas || {}).api;
+  if (apiMenu) {
+    fetch(`${apiMenu}?accion=menu`).then((r) => r.json()).then((r) => {
+      if (!r.ok || !Array.isArray(r.menu)) return;
+      try { localStorage.setItem("amo-menu", JSON.stringify(r.menu)); } catch (e) {}
+      pintarMenu(r.menu);
+      const m = location.hash.match(/^#\/menu\/(.+)$/);
+      if (m) pintarPlato(decodeURIComponent(m[1]));
+    }).catch(() => {});
   }
 
   /* ---------- Fechas y textos ---------- */

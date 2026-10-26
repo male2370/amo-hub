@@ -179,7 +179,7 @@
     $$("[data-tab]").forEach((b) => (b.getAttribute("data-tab") === tab ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current")));
     $$("[data-vista]").forEach((v) => (v.hidden = v.dataset.vista !== tab));
     $("[data-nueva]").hidden = tab === "ajustes";
-    $("[data-fab-texto]").textContent = tab === "catas" ? "Entrada" : "Reserva";
+    $("[data-fab-texto]").textContent = tab === "catas" ? "Entrada" : tab === "menu" ? "Plato" : "Reserva";
     window.scrollTo(0, 0);
   }
 
@@ -187,6 +187,7 @@
     pintarNoche();
     pintarProximos();
     pintarCatas();
+    pintarMenu();
     pintarAjustes();
     pintarNuevas();
   }
@@ -596,6 +597,272 @@
     }
   }
 
+  /* ----- Menú ----- */
+  const copiar = (x) => JSON.parse(JSON.stringify(x));
+  const menuActual = () => (st.datos && Array.isArray(st.datos.menu) ? st.datos.menu : (window.AMO && window.AMO.menu) || []);
+  const fotoPlato = (p) => {
+    if (p.foto === "sin") return "";
+    if (!p.foto) return `../img/platos/${p.id}.jpg`;
+    return /^(https?:|data:)/.test(p.foto) ? p.foto : `../${p.foto}`;
+  };
+  const sinTildes = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const slug = (t) => sinTildes(t).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "plato";
+  const formatoPrecio = (t) => { const v = String(t || "").trim(); return /^\$?\s?[\d.]+$/.test(v) ? plata(v.replace(/\D/g, "")) : v; };
+  window.amoSinFotoPanel = (img) => { const s = document.createElement("span"); s.className = "menu-item__vacia"; s.innerHTML = '<img src="../img/icono-copa.png" alt="">'; img.replaceWith(s); };
+  const miniPlato = (p) => fotoPlato(p)
+    ? `<img src="${esc(fotoPlato(p))}" alt="" loading="lazy" onerror="amoSinFotoPanel(this)">`
+    : '<span class="menu-item__vacia"><img src="../img/icono-copa.png" alt=""></span>';
+
+  function pintarMenu() {
+    const cont = $("[data-menu-vista]"); if (!cont) return;
+    const q = sinTildes($("[data-menu-buscar]").value.trim());
+    const menu = menuActual();
+    cont.innerHTML = menu.map((cat, ci) => {
+      const lista = cat.platos.map((p, pi) => ({ p, pi })).filter(({ p }) => !q || sinTildes(p.nombre).includes(q));
+      if (q && !lista.length) return "";
+      const ocultos = cat.platos.filter((p) => p.oculto).length;
+      return `
+        <section class="menu-cat">
+          <div class="menu-cat__cab">
+            <h2>${esc(cat.categoria)}</h2>
+            <span>${plural(cat.platos.length, "plato", "platos")}${ocultos ? ` · ${ocultos} oculto${ocultos > 1 ? "s" : ""}` : ""}</span>
+            ${q ? "" : `<button class="btn btn--chico" data-cat-editar="${ci}">Editar</button>`}
+          </div>
+          ${lista.map(({ p, pi }) => `
+            <button class="menu-item${p.oculto ? " is-oculto" : ""}" data-plato-editar="${ci}:${pi}">
+              <span class="menu-item__foto">${miniPlato(p)}</span>
+              <span class="menu-item__txt"><b>${esc(p.nombre)}</b><small>${esc(p.precio || "Sin precio")}</small></span>
+              ${p.oculto ? '<span class="chip chip--cancelada">Oculto</span>' : ""}
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>`).join("")}
+          ${q ? "" : `<button class="menu-cat__mas" data-plato-nuevo="${ci}">+ Agregar plato en ${esc(cat.categoria)}</button>`}
+        </section>`;
+    }).join("") + (q ? "" : '<button class="btn btn--linea btn--ancho" data-cat-nueva>+ Nueva categoría</button>');
+    if (q && !cont.querySelector(".menu-item")) cont.innerHTML = '<div class="vacio">No hay platos con ese nombre.</div>';
+  }
+
+  // Guarda todo el menú (se ve al instante en la app y después en la página)
+  async function guardarMenuNuevo(menu, okMsg) {
+    const antes = menuActual();
+    if (!st.datos) st.datos = { reservas: [], bloqueos: [], catas: [], entradas: [] };
+    st.datos.menu = menu;
+    pintarMenu();
+    try {
+      const r = await llamar("guardarMenu", { menu });
+      if (!r.ok) throw new Error(r.error || "No se pudo guardar.");
+      guardado.escribir("amo-datos", JSON.stringify(st.datos));
+      if (okMsg) aviso(okMsg);
+      return true;
+    } catch (e) {
+      st.datos.menu = antes; pintarMenu();
+      aviso(e.message === "Failed to fetch" ? "Sin conexión. No se guardó." : e.message);
+      return false;
+    }
+  }
+
+  function formPlato(ci, pi) {
+    const menu = menuActual();
+    if (!menu.length) return formCategoria(-1);
+    const nuevo = pi < 0;
+    const p = nuevo ? { id: "", nombre: "", precio: "", descripcion: "", foto: "", oculto: false } : menu[ci].platos[pi];
+    abrirHoja(`
+      <h2 class="det__titulo" id="hoja-titulo">${nuevo ? "Nuevo plato" : "Editar plato"}</h2>
+      <form class="form-reserva" data-form-plato data-ci="${ci}" data-pi="${pi}" data-foto="${esc(p.foto || "")}">
+        <div class="foto-edit">
+          <div class="foto-edit__img" data-foto-vista>${nuevo && !p.foto ? '<span class="menu-item__vacia"><img src="../img/icono-copa.png" alt=""></span>' : miniPlato(p)}</div>
+          <div class="foto-edit__botones">
+            <label class="btn btn--linea btn--chico subir-foto">
+              <input type="file" accept="image/*" data-foto-input>
+              <span data-foto-texto>${fotoPlato(p) && !nuevo ? "Cambiar foto" : "Subir foto"}</span>
+            </label>
+            <button type="button" class="btn btn--chico" data-foto-quitar>Sin foto</button>
+          </div>
+        </div>
+        <label class="campo"><span class="campo__label">Nombre</span>
+          <input class="campo__input" name="nombre" required maxlength="100" value="${esc(p.nombre)}" ${nuevo ? "autofocus" : ""}></label>
+        <div class="doble">
+          <label class="campo"><span class="campo__label">Precio</span>
+            <input class="campo__input" name="precio" maxlength="30" value="${esc(p.precio)}" placeholder="$16.200" inputmode="decimal"></label>
+          <label class="campo"><span class="campo__label">Categoría</span>
+            <select class="campo__input" name="categoria">${menu.map((c, i) => `<option value="${i}" ${i === ci ? "selected" : ""}>${esc(c.categoria)}</option>`).join("")}</select></label>
+        </div>
+        <label class="campo"><span class="campo__label">Descripción</span>
+          <textarea class="campo__input" name="descripcion" rows="3" maxlength="500" placeholder="Ingredientes, cómo se sirve…">${esc(p.descripcion)}</textarea></label>
+        <label class="check"><input type="checkbox" name="visible" ${p.oculto ? "" : "checked"}><span>Mostrar en la carta <small style="color:var(--crema-tenue)">(destildalo si hoy no hay)</small></span></label>
+        <button class="btn btn--oro btn--ancho" type="submit">${nuevo ? "Agregar plato" : "Guardar cambios"}</button>
+        ${nuevo ? "" : `
+        <div class="det__acciones">
+          <button type="button" class="btn btn--chico" data-plato-mover="-1">↑ Subir</button>
+          <button type="button" class="btn btn--chico" data-plato-mover="1">↓ Bajar</button>
+          <button type="button" class="btn btn--peligro btn--ancho" data-plato-borrar>Borrar plato</button>
+        </div>`}
+        <p class="error" data-form-error></p>
+      </form>`);
+  }
+
+  function formCategoria(ci) {
+    const menu = menuActual();
+    const nueva = ci < 0;
+    const c = nueva ? { categoria: "", platos: [] } : menu[ci];
+    abrirHoja(`
+      <h2 class="det__titulo" id="hoja-titulo">${nueva ? "Nueva categoría" : "Editar categoría"}</h2>
+      <form class="form-reserva" data-form-categoria data-ci="${ci}">
+        <label class="campo"><span class="campo__label">Nombre</span>
+          <input class="campo__input" name="nombre" required maxlength="60" value="${esc(c.categoria)}" placeholder="Ej: Sugerencias del chef" autofocus></label>
+        <button class="btn btn--oro btn--ancho" type="submit">${nueva ? "Crear categoría" : "Guardar"}</button>
+        ${nueva ? "" : `
+        <div class="det__acciones">
+          <button type="button" class="btn btn--chico" data-cat-mover="-1">↑ Subir</button>
+          <button type="button" class="btn btn--chico" data-cat-mover="1">↓ Bajar</button>
+          <button type="button" class="btn btn--peligro btn--ancho" data-cat-borrar>Borrar categoría${c.platos.length ? ` y sus ${c.platos.length} platos` : ""}</button>
+        </div>`}
+      </form>`);
+  }
+
+  // Achica la foto antes de subirla
+  function achicarFoto(file) {
+    return new Promise((ok, mal) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const k = Math.min(1, 1200 / Math.max(img.width, img.height));
+        const cv = document.createElement("canvas");
+        cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+        cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+        URL.revokeObjectURL(url);
+        ok(cv.toDataURL("image/jpeg", 0.82).split(",")[1]);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); mal(new Error("No pudimos leer esa foto. Probá con otra.")); };
+      img.src = url;
+    });
+  }
+
+  document.addEventListener("change", async (ev) => {
+    const input = ev.target.closest("[data-foto-input]");
+    if (!input || !input.files[0]) return;
+    const form = input.closest("[data-form-plato]");
+    const texto = form.querySelector("[data-foto-texto]");
+    const err = form.querySelector("[data-form-error]");
+    texto.textContent = "Subiendo…"; err.textContent = "";
+    try {
+      const datos = await achicarFoto(input.files[0]);
+      const r = await llamar("subirFotoPlato", { tipo: "image/jpeg", archivo: datos, nombre: slug(form.nombre.value) });
+      if (!r.ok) throw new Error(r.error);
+      form.dataset.foto = r.url;
+      form.querySelector("[data-foto-vista]").innerHTML = `<img src="${esc(r.url)}" alt="">`;
+      texto.textContent = "Cambiar foto";
+    } catch (e) {
+      err.textContent = e.message === "Failed to fetch" ? "Sin conexión. No se subió la foto." : e.message;
+      texto.textContent = "Subir foto";
+    }
+    input.value = "";
+  });
+
+  document.addEventListener("focusout", (ev) => {
+    if (ev.target.name === "precio" && ev.target.closest("[data-form-plato]")) ev.target.value = formatoPrecio(ev.target.value);
+  });
+
+  document.addEventListener("click", async (ev) => {
+    const t = ev.target.closest("button");
+    if (!t) return;
+    if (t.dataset.platoEditar) { const [ci, pi] = t.dataset.platoEditar.split(":").map(Number); return formPlato(ci, pi); }
+    if (t.dataset.platoNuevo) return formPlato(Number(t.dataset.platoNuevo), -1);
+    if (t.dataset.catEditar) return formCategoria(Number(t.dataset.catEditar));
+    if (t.hasAttribute("data-cat-nueva")) return formCategoria(-1);
+
+    const formP = t.closest("[data-form-plato]");
+    if (formP && t.hasAttribute("data-foto-quitar")) {
+      formP.dataset.foto = "sin";
+      formP.querySelector("[data-foto-vista]").innerHTML = '<span class="menu-item__vacia"><img src="../img/icono-copa.png" alt=""></span>';
+      formP.querySelector("[data-foto-texto]").textContent = "Subir foto";
+      return;
+    }
+    if (formP && t.dataset.platoMover) {
+      const ci = Number(formP.dataset.ci), pi = Number(formP.dataset.pi), n = pi + Number(t.dataset.platoMover);
+      const menu = copiar(menuActual()); const lista = menu[ci].platos;
+      if (n < 0 || n >= lista.length) return;
+      [lista[pi], lista[n]] = [lista[n], lista[pi]];
+      formP.dataset.pi = n;
+      await guardarMenuNuevo(menu, t.dataset.platoMover === "-1" ? "Subió un lugar" : "Bajó un lugar");
+      return;
+    }
+    if (formP && t.hasAttribute("data-plato-borrar")) {
+      const ci = Number(formP.dataset.ci), pi = Number(formP.dataset.pi);
+      const menu = copiar(menuActual());
+      if (!confirm(`¿Borrar "${menu[ci].platos[pi].nombre}" del menú? Si solo hoy no hay, mejor destildá "Mostrar en la carta".`)) return;
+      menu[ci].platos.splice(pi, 1);
+      if (await guardarMenuNuevo(menu, "Plato borrado")) cerrarHoja();
+      return;
+    }
+
+    const formC = t.closest("[data-form-categoria]");
+    if (formC && t.dataset.catMover) {
+      const ci = Number(formC.dataset.ci), n = ci + Number(t.dataset.catMover);
+      const menu = copiar(menuActual());
+      if (n < 0 || n >= menu.length) return;
+      [menu[ci], menu[n]] = [menu[n], menu[ci]];
+      formC.dataset.ci = n;
+      await guardarMenuNuevo(menu, t.dataset.catMover === "-1" ? "Subió un lugar" : "Bajó un lugar");
+      return;
+    }
+    if (formC && t.hasAttribute("data-cat-borrar")) {
+      const ci = Number(formC.dataset.ci);
+      const menu = copiar(menuActual());
+      const c = menu[ci];
+      if (!confirm(`¿Borrar la categoría "${c.categoria}"${c.platos.length ? ` con sus ${c.platos.length} platos` : ""}?`)) return;
+      menu.splice(ci, 1);
+      if (await guardarMenuNuevo(menu, "Categoría borrada")) cerrarHoja();
+    }
+  });
+
+  document.addEventListener("submit", async (ev) => {
+    const formP = ev.target.closest("[data-form-plato]");
+    const formC = ev.target.closest("[data-form-categoria]");
+    if (!formP && !formC) return;
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    const menu = copiar(menuActual());
+    const boton = ev.target.querySelector("[type=submit]");
+
+    if (formC) {
+      const ci = Number(formC.dataset.ci);
+      const nombre = formC.nombre.value.trim();
+      if (!nombre) return;
+      if (ci < 0) menu.push({ categoria: nombre, platos: [] }); else menu[ci].categoria = nombre;
+      boton.disabled = true;
+      if (await guardarMenuNuevo(menu, ci < 0 ? "Categoría creada" : "Guardado")) cerrarHoja();
+      boton.disabled = false;
+      return;
+    }
+
+    const ci = Number(formP.dataset.ci), pi = Number(formP.dataset.pi);
+    const err = formP.querySelector("[data-form-error]");
+    const nombre = formP.nombre.value.trim();
+    if (!nombre) { err.textContent = "Falta el nombre."; formP.nombre.focus(); return; }
+    const destino = Number(formP.categoria.value);
+    const plato = pi < 0 ? { id: "" } : menu[ci].platos[pi];
+    if (!plato.id) {
+      const usados = new Set(menu.flatMap((c) => c.platos.map((x) => x.id)));
+      let id = slug(nombre), i = 2;
+      while (usados.has(id)) id = `${slug(nombre)}-${i++}`;
+      plato.id = id;
+    }
+    Object.assign(plato, {
+      nombre,
+      precio: formatoPrecio(formP.precio.value),
+      descripcion: formP.descripcion.value.trim(),
+      foto: formP.dataset.foto || "",
+      oculto: !formP.visible.checked
+    });
+    if (pi >= 0 && destino !== ci) menu[ci].platos.splice(pi, 1);
+    if (pi < 0 || destino !== ci) menu[destino].platos.push(plato);
+    boton.disabled = true; boton.textContent = "Guardando…";
+    if (await guardarMenuNuevo(menu, pi < 0 ? "Plato agregado" : "Guardado")) cerrarHoja();
+    boton.disabled = false; boton.textContent = pi < 0 ? "Agregar plato" : "Guardar cambios";
+  }, true);
+
+  $("[data-menu-buscar]").addEventListener("input", pintarMenu);
+
   /* ----- Ajustes ----- */
   function pintarAjustes() {
     const hoy = hoyLocal();
@@ -905,7 +1172,7 @@
     await accion("desbloquear", { id: c.id }, "Reabierto");
   });
 
-  $("[data-nueva]").addEventListener("click", () => (st.tab === "catas" ? formEntrada(st.cataFecha) : formNueva()));
+  $("[data-nueva]").addEventListener("click", () => (st.tab === "catas" ? formEntrada(st.cataFecha) : st.tab === "menu" ? formPlato(0, -1) : formNueva()));
 
   document.addEventListener("input", (ev) => {
     if (!ev.target.closest("[data-form-nueva]")) return;
@@ -1083,7 +1350,8 @@
         hoy: hoyLocal(), ahora: ahora(),
         reservas: db.r.filter((r) => r.fecha >= d.desde), bloqueos: db.b.filter((b) => b.fecha >= d.desde),
         catas: infoCatas(), entradas: db.e.filter((e) => e.fecha >= d.desde).map((e) => Object.assign({}, e)),
-        cata: { precio: CATA.precio, senaPorc: CATA.senaPorc, hora: CATA.hora, cupo: 60 }
+        cata: { precio: CATA.precio, senaPorc: CATA.senaPorc, hora: CATA.hora, cupo: 60 },
+        menu: db.menu || null
       });
     }
     if (d.accion === "cancelar") { db.r.find((r) => r.id === d.id).estado = "cancelada"; return ok(); }
@@ -1109,6 +1377,8 @@
       return ok();
     }
     if (d.accion === "verComprobante") return ok({ tipo: "image/jpeg", url: "../img/sirviendo.jpg" });
+    if (d.accion === "guardarMenu") { db.menu = JSON.parse(JSON.stringify(d.menu)); return ok(); }
+    if (d.accion === "subirFotoPlato") return ok({ url: `data:${d.tipo};base64,${d.archivo}` });
     return ok({ ok: false, error: "Acción desconocida" });
   }
 
