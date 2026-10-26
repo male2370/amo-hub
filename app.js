@@ -532,7 +532,7 @@
     try {
       const r = await traerCatas(true);
       cs.max = r.maxPorReserva || 20;
-      const c = preFecha && r.catas.find((x) => x.fecha === preFecha && !x.cancelada && x.libres > 0);
+      const c = preFecha && r.catas.find((x) => x.fecha === preFecha && x.bodega && !x.cancelada && x.libres > 0);
       if (c) cs.fecha = c.fecha;
       pintarCatas();
       pintarCataPasos();
@@ -543,8 +543,8 @@
   }
 
   function pintarCatas() {
-    const lista = catasCache ? catasCache.catas : [];
-    if (!lista.length) { $("[data-catas]").innerHTML = '<p class="catas__cargando">Por ahora no hay catas programadas.</p>'; return; }
+    const lista = (catasCache ? catasCache.catas : []).filter((c) => c.bodega);
+    if (!lista.length) { $("[data-catas]").innerHTML = '<p class="catas__cargando">Pronto anunciamos la próxima cata. Escribinos y te avisamos.</p>'; return; }
     $("[data-catas]").innerHTML = lista.map((c) => {
       const d = deISO(c.fecha);
       const no = c.cancelada || c.libres <= 0;
